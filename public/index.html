@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Serveur de Blagues</title>
+    <!-- Lien vers Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Lien vers Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- Lien vers votre CSS personnalisé -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Serveur de Blagues</h1>
+
+        <!-- Section Authentification -->
+        <section id="auth-section" class="mb-5">
+            <div class="row">
+                <!-- Inscription -->
+                <div class="col-md-6 mb-4">
+                    <h2>Inscription</h2>
+                    <form id="register-form">
+                        <div class="mb-3">
+                            <label for="register-username" class="form-label">Nom d'utilisateur :</label>
+                            <input type="text" id="register-username" name="username" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="register-password" class="form-label">Mot de passe :</label>
+                            <input type="password" id="register-password" name="password" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-success"><i class="bi bi-person-plus-fill"></i> S'inscrire</button>
+                    </form>
+                </div>
+
+                <!-- Connexion -->
+                <div class="col-md-6 mb-4">
+                    <h2>Connexion</h2>
+                    <form id="login-form">
+                        <div class="mb-3">
+                            <label for="login-username" class="form-label">Nom d'utilisateur :</label>
+                            <input type="text" id="login-username" name="username" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="login-password" class="form-label">Mot de passe :</label>
+                            <input type="password" id="login-password" name="password" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-box-arrow-in-right"></i> Se connecter</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Ajouter et Générer des Blagues (Visible uniquement pour les utilisateurs authentifiés) -->
+        <section id="add-blague-section" class="mb-5 d-none">
+            <h2>Ajouter une Nouvelle Blague</h2>
+            <form id="blague-form">
+                <div class="mb-3">
+                    <label for="texte" class="form-label">Texte :</label>
+                    <textarea id="texte" name="texte" class="form-control" rows="3" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="auteur" class="form-label">Auteur :</label>
+                    <input type="text" id="auteur" name="auteur" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="categorie" class="form-label">Catégorie :</label>
+                    <select id="categorie" name="categorie" class="form-select" required>
+                        <option value="">Sélectionnez une catégorie</option>
+                        <option value="Animaux">Animaux</option>
+                        <option value="Informatique">Informatique</option>
+                        <option value="Autre">Autre</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary"><i class="bi bi-plus-circle-fill"></i> Ajouter Blague</button>
+                <button type="button" id="generate-joke-btn" class="btn btn-secondary"><i class="bi bi-journal-plus"></i> Générer Blague</button>
+            </form>
+        </section>
+
+        <!-- Section Rechercher des Blagues -->
+        <section id="search-blague" class="mb-4">
+            <h2>Rechercher des Blagues</h2>
+            <div class="input-group mb-3">
+                <input type="text" id="search-input" class="form-control" placeholder="Rechercher par texte ou auteur...">
+                <button class="btn btn-outline-secondary" type="button" id="search-btn"><i class="bi bi-search"></i> Rechercher</button>
+            </div>
+            <div class="mb-3">
+                <label for="filter-categorie" class="form-label">Filtrer par Catégorie :</label>
+                <select id="filter-categorie" class="form-select">
+                    <option value="">Toutes les catégories</option>
+                    <option value="Animaux">Animaux</option>
+                    <option value="Informatique">Informatique</option>
+                    <option value="Autre">Autre</option>
+                </select>
+            </div>
+        </section>
+
+        <!-- Section Liste des Blagues -->
+        <section id="blagues-list">
+            <h2>Liste des Blagues</h2>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Texte</th>
+                        <th>Auteur</th>
+                        <th>Catégorie</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="blagues-tbody">
+                    <!-- Les blagues seront insérées ici dynamiquement -->
+                </tbody>
+            </table>
+
+            <!-- Pagination -->
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center" id="pagination">
+                    <!-- Les éléments de pagination seront insérés ici dynamiquement -->
+                </ul>
+            </nav>
+        </section>
+
+        <!-- Bouton Déconnexion (Visible uniquement pour les utilisateurs authentifiés) -->
+        <div class="text-end mb-4 d-none" id="logout-section">
+            <button class="btn btn-danger" id="logout-btn"><i class="bi bi-box-arrow-left"></i> Déconnexion</button>
+        </div>
+
+        <!-- Modals -->
+
+        <!-- Modal pour Modifier une Blague -->
+        <div class="modal fade" id="editBlagueModal" tabindex="-1" aria-labelledby="editBlagueModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <form id="edit-blague-form">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="editBlagueModalLabel">Modifier la Blague</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="edit-blague-id">
+                    <div class="mb-3">
+                        <label for="edit-texte" class="form-label">Texte :</label>
+                        <textarea id="edit-texte" name="texte" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-auteur" class="form-label">Auteur :</label>
+                        <input type="text" id="edit-auteur" name="auteur" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-categorie" class="form-label">Catégorie :</label>
+                        <select id="edit-categorie" name="categorie" class="form-select" required>
+                            <option value="">Sélectionnez une catégorie</option>
+                            <option value="Animaux">Animaux</option>
+                            <option value="Informatique">Informatique</option>
+                            <option value="Autre">Autre</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                  <button type="submit" class="btn btn-primary">Sauvegarder les Modifications</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal pour Lire une Blague -->
+        <div class="modal fade" id="readBlagueModal" tabindex="-1" aria-labelledby="readBlagueModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="readBlagueModalLabel">Lire la Blague</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="read-blague-texte"></p>
+                    <p><strong>Auteur :</strong> <span id="read-blague-auteur"></span></p>
+                    <p><strong>Catégorie :</strong> <span id="read-blague-categorie"></span></p>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conteneur de Toasts Bootstrap -->
+        <div aria-live="polite" aria-atomic="true" class="position-relative">
+          <div class="toast-container position-absolute top-0 end-0 p-3">
+            <!-- Les toasts seront insérés ici dynamiquement -->
+          </div>
+        </div>
+
+        <!-- Lien vers Bootstrap JS et ses dépendances (Popper) -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Lien vers votre JavaScript personnalisé -->
+        <script src="script.js"></script>
+    </div>
+</body>
+</html>
